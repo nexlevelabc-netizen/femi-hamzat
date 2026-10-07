@@ -10,9 +10,11 @@ COPY . .
 # Unpack the application source from scripts/bundle/part-*.txt.
 RUN node scripts/restore-source.mjs
 
-# Install dependencies (including devDependencies: vite and esbuild are
-# needed for the build, and Render sets NODE_ENV=production during builds).
-RUN npm install --include=dev
+# Install dependencies from the lockfile, including devDependencies
+# (vite and esbuild are needed for the build; Render sets NODE_ENV=production
+# during image builds, which would otherwise skip them). Retry once if the
+# npm registry flakes.
+RUN npm ci --include=dev || npm ci --include=dev
 
 # Build frontend and server.
 RUN npm run build
