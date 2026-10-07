@@ -10,6 +10,10 @@ COPY . .
 # Unpack the application source from scripts/bundle/part-*.txt.
 RUN node scripts/restore-source.mjs
 
+# The lockfile was generated behind a private npm mirror; point all package
+# URLs at the public npm registry so installs work on any host.
+RUN sed -i 's|https://npm.mirrors.msh.team|https://registry.npmjs.org|g' package-lock.json
+
 # Upgrade npm to v11 (the newest line compatible with Node 20; the bundled
 # npm 10.8.2 can exit 0 without installing on Alpine: "Exit handler never
 # called"), then install from the lockfile including devDependencies (vite
