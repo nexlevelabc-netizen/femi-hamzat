@@ -10,8 +10,11 @@ COPY . .
 # Unpack the application source from scripts/bundle/part-*.txt.
 RUN node scripts/restore-source.mjs
 
-# Install dependencies and build frontend and server.
-RUN npm install
+# Install dependencies (including devDependencies: vite and esbuild are
+# needed for the build, and Render sets NODE_ENV=production during builds).
+RUN npm install --include=dev
+
+# Build frontend and server.
 RUN npm run build
 
 ENV NODE_ENV=production
