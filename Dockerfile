@@ -10,11 +10,15 @@ COPY . .
 # Unpack the application source from scripts/bundle/part-*.txt.
 RUN node scripts/restore-source.mjs
 
-# Install dependencies from the lockfile, including devDependencies
-# (vite and esbuild are needed for the build; Render sets NODE_ENV=production
-# during image builds, which would otherwise skip them). Retry once if the
-# npm registry flakes.
-RUN npm ci --include=dev || npm ci --include=dev
+# Upgrade npm (the bundled npm 10.8.2 can exit 0 without installing on
+# Alpine: "Exit handler never called"), then install from the lockfile
+# including devDependencies (vite and esbuild run the build), with one
+# retry for registry flakes. Finally verify the install really happened:
+# fail here with the npm log if node_modules/.bin/vite is missing.
+RUN npm install -g npm@latest \
+    && (npm ci --include=dev --no-audit --no-fund || npm ci --include=dev --no-audit --no-fund) \
+    && ls node_modules/.bin/vite \
+    && node -e "console.log('vite version:', require('vite/package.json').version)"
 
 # Build frontend and server.
 RUN npm run build
