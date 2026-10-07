@@ -19,18 +19,35 @@ npx tsx db/seed.ts     # load articles, events and achievements
 npm run dev            # http://localhost:3000
 ```
 
+## How the source is stored (important)
+
+The full application source (src, api, contracts, db and all root config files) is
+packed inside `scripts/bundle/` as base64 text parts. During the build,
+`scripts/restore-source.mjs` joins the parts, decodes the archive and extracts the
+source tree, so a plain clone of this repository builds into the complete site.
+
+The image files in `public/images` are binary and therefore not part of the bundle.
+Before the first deploy, upload them through the GitHub web interface:
+
+1. Open the repository on github.com and browse to the `public` folder
+   (create it with Add file, then Create new file named `public/images/.gitkeep`
+   if it does not exist).
+2. Open `public/images`, choose Add file, then Upload files, and drag in every
+   image from your local `public/images` folder (apc-logo.jpg, hamzat-portrait.jpg
+   and the rest). Commit the upload.
+
 ## Deploy on Render
 
-1. Push this code to your GitHub repository (all folders: api, contracts, db, public, src, plus every root config file). Do not commit .env or node_modules.
+1. Complete the image upload above so `public/images` exists in the repository.
 2. On render.com choose New, then Web Service, then connect the repository.
-3. Settings:
+   A `render.yaml` is included, so Render pre fills the settings:
    - Runtime: Node
-   - Build Command: `npm install && npm run build`
+   - Build Command: `node scripts/restore-source.mjs && npm install && npm run build`
    - Start Command: `npm start`
    - Node version: 20
-4. Add the environment variables from .env.example (see notes below).
-5. Provision a MySQL 8 database. Render does not include MySQL, so use an external MySQL provider (Aiven, PlanetScale, Railway) and set DATABASE_URL to its connection string.
-6. After the first deploy, open the Render Shell for the service and run once:
+3. Add the environment variables from .env.example (see notes below).
+4. Provision a MySQL 8 database. Render does not include MySQL, so use an external MySQL provider (Aiven, PlanetScale, Railway) and set DATABASE_URL to its connection string.
+5. After the first deploy, open the Render Shell for the service and run once:
 
 ```bash
 npm run db:push && npx tsx db/seed.ts

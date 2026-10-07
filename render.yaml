@@ -2,7 +2,7 @@ services:
   - type: web
     name: femi-hamzat
     runtime: node
-    buildCommand: npm install && npm run build
+    buildCommand: node scripts/restore-source.mjs && npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
