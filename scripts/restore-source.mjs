@@ -1,13 +1,14 @@
 // Restores the application source from scripts/bundle.
-// The bundle is a gzipped tar of the project source (excluding public/ and
-// package-lock.json), stored as base64 slices c-*.txt, plus raw JSON slices
-// l-*.txt of package-lock.json. Images under public/ live directly in git.
+// c-*.txt slices: base64 of a gzipped tar of the project source (excluding
+// public/ and package-lock.json; images live directly in git).
+// lg-*.txt slices: base64 of gzipped package-lock.json.
 // Run before npm install when the repository was cloned without the source
 // tree (for example on Render). Locally the source already exists, so the
 // script exits immediately.
 
 import { execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { gunzipSync } from "node:zlib";
 import { join } from "node:path";
 
 const root = process.cwd();
@@ -20,19 +21,23 @@ if (existsSync(join(root, "src", "App.tsx"))) {
 
 const files = readdirSync(bundleDir).filter((f) => f.endsWith(".txt")).sort();
 
-const codeParts = files.filter((f) => f.startsWith("c-"));
-const lockParts = files.filter((f) => f.startsWith("l-"));
+const joinSlices = (prefix) =>
+  files
+    .filter((f) => f.startsWith(prefix))
+    .map((f) => readFileSync(join(bundleDir, f), "utf8").trim())
+    .join("");
 
-if (codeParts.length === 0 || lockParts.length === 0) {
+const codeB64 = joinSlices("c-");
+const lockB64 = joinSlices("lg-");
+
+if (!codeB64 || !lockB64) {
   console.error("bundle slices missing in scripts/bundle");
   process.exit(1);
 }
 
-const b64 = codeParts.map((f) => readFileSync(join(bundleDir, f), "utf8").trim()).join("");
-writeFileSync(join(root, "source.tar.gz"), Buffer.from(b64, "base64"));
+writeFileSync(join(root, "source.tar.gz"), Buffer.from(codeB64, "base64"));
 execSync("tar -xzf source.tar.gz", { stdio: "inherit" });
 
-const lock = lockParts.map((f) => readFileSync(join(bundleDir, f), "utf8").replace(/\n$/, "")).join("");
-writeFileSync(join(root, "package-lock.json"), lock);
+writeFileSync(join(root, "package-lock.json"), gunzipSync(Buffer.from(lockB64, "base64")));
 
-console.log(`source restored from bundle (${codeParts.length} code slices, ${lockParts.length} lockfile slices)`);
+console.log("source restored from bundle");
