@@ -2,6 +2,10 @@
 // c-*.txt slices: base64 of a gzipped tar of the project source (excluding
 // public/ and package-lock.json; images live directly in git).
 // lg-*.txt slices: base64 of gzipped package-lock.json.
+// p-*.txt slices (optional): base64 of a gzipped tar with source files that
+// override the main bundle (applied last, after the lockfile merge).
+// scripts/lock-patch.json (optional): extra package-lock entries merged into
+// the restored lockfile (used to add nodemailer without re-slicing lg-*).
 // Run before npm install when the repository was cloned without the source
 // tree (for example on Render). Locally the source already exists, so the
 // script exits immediately.
@@ -39,5 +43,25 @@ writeFileSync(join(root, "source.tar.gz"), Buffer.from(codeB64, "base64"));
 execSync("tar -xzf source.tar.gz", { stdio: "inherit" });
 
 writeFileSync(join(root, "package-lock.json"), gunzipSync(Buffer.from(lockB64, "base64")));
+
+// Merge extra lockfile entries (for example nodemailer) that were added
+// after the lg-* slices were generated.
+const lockPatchPath = join(root, "scripts", "lock-patch.json");
+if (existsSync(lockPatchPath)) {
+  const patch = JSON.parse(readFileSync(lockPatchPath, "utf8"));
+  const lock = JSON.parse(readFileSync(join(root, "package-lock.json"), "utf8"));
+  lock.packages[""].dependencies[patch.package] = patch.rootDep;
+  lock.packages[`node_modules/${patch.package}`] = patch.entry;
+  writeFileSync(join(root, "package-lock.json"), JSON.stringify(lock, null, 2) + "\n");
+  console.log(`lockfile patched with ${patch.package}`);
+}
+
+// Apply the source patch archive last so its files win over the main bundle.
+const patchB64 = joinSlices("p-");
+if (patchB64) {
+  writeFileSync(join(root, "patch.tar.gz"), Buffer.from(patchB64, "base64"));
+  execSync("tar -xzf patch.tar.gz", { stdio: "inherit" });
+  console.log("source patch applied");
+}
 
 console.log("source restored from bundle");
