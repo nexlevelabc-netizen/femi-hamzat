@@ -2,8 +2,10 @@
 // c-*.txt slices: base64 of a gzipped tar of the project source (excluding
 // public/ and package-lock.json; images live directly in git).
 // lg-*.txt slices: base64 of gzipped package-lock.json.
-// p-*.txt slices (optional): base64 of a gzipped tar with source files that
-// override the main bundle (applied last, after the lockfile merge).
+// q-*.txt slices (optional): base64 of a gzipped tar with source files that
+// override the main bundle (email notification patch, applied after c-*).
+// r-*.txt slices (optional): a second override archive (hero image swap,
+// applied after q-*). Each prefix is ONE gzipped tar split into slices.
 // scripts/lock-patch.json (optional): extra package-lock entries merged into
 // the restored lockfile (used to add nodemailer without re-slicing lg-*).
 // scripts/bundle/i-*.txt (optional): base64 of a gzipped tar of additional
@@ -58,12 +60,14 @@ if (existsSync(lockPatchPath)) {
   console.log(`lockfile patched with ${patch.package}`);
 }
 
-// Apply the source patch archive last so its files win over the main bundle.
-const patchB64 = joinSlices("p-");
-if (patchB64) {
-  writeFileSync(join(root, "patch.tar.gz"), Buffer.from(patchB64, "base64"));
-  execSync("tar -xzf patch.tar.gz", { stdio: "inherit" });
-  console.log("source patch applied");
+// Apply source patch archives after the main bundle so their files win.
+// q-* is the email notification patch; r-* is applied after it.
+for (const [prefix, label] of [["q-", "email"], ["r-", "hero"]]) {
+  const b64 = joinSlices(prefix);
+  if (!b64) continue;
+  writeFileSync(join(root, `patch-${prefix}tar.gz`), Buffer.from(b64, "base64"));
+  execSync(`tar -xzf patch-${prefix}tar.gz`, { stdio: "inherit" });
+  console.log(`source patch (${label}) applied`);
 }
 
 // Restore additional public images that are not committed directly to git.
