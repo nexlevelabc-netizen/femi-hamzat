@@ -6,6 +6,8 @@
 // override the main bundle (applied last, after the lockfile merge).
 // scripts/lock-patch.json (optional): extra package-lock entries merged into
 // the restored lockfile (used to add nodemailer without re-slicing lg-*).
+// scripts/bundle/i-*.txt (optional): base64 of a gzipped tar of additional
+// public images, extracted into public/ after the main restore.
 // Run before npm install when the repository was cloned without the source
 // tree (for example on Render). Locally the source already exists, so the
 // script exits immediately.
@@ -62,6 +64,14 @@ if (patchB64) {
   writeFileSync(join(root, "patch.tar.gz"), Buffer.from(patchB64, "base64"));
   execSync("tar -xzf patch.tar.gz", { stdio: "inherit" });
   console.log("source patch applied");
+}
+
+// Restore additional public images that are not committed directly to git.
+const imgB64 = joinSlices("i-");
+if (imgB64) {
+  writeFileSync(join(root, "images.tar.gz"), Buffer.from(imgB64, "base64"));
+  execSync("mkdir -p public && tar -xzf images.tar.gz -C public", { stdio: "inherit" });
+  console.log("public images restored from bundle");
 }
 
 console.log("source restored from bundle");
