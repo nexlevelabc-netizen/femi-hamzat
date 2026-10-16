@@ -5,7 +5,9 @@
 // q-*.txt slices (optional): base64 of a gzipped tar with source files that
 // override the main bundle (email notification patch, applied after c-*).
 // r-*.txt slices (optional): a second override archive (hero image swap,
-// applied after q-*). Each prefix is ONE gzipped tar split into slices.
+// applied after q-*). s-*.txt slices (optional): a third override archive
+// (layout, social icons and news imagery, applied after r-*).
+// Each prefix is ONE gzipped tar split into slices.
 // scripts/lock-patch.json (optional): extra package-lock entries merged into
 // the restored lockfile (used to add nodemailer without re-slicing lg-*).
 // scripts/bundle/i-*.txt (optional): base64 of a gzipped tar of additional
@@ -61,8 +63,10 @@ if (existsSync(lockPatchPath)) {
 }
 
 // Apply source patch archives after the main bundle so their files win.
-// q-* is the email notification patch; r-* is applied after it.
-for (const [prefix, label] of [["q-", "email"], ["r-", "hero"]]) {
+// q-* is the email notification patch; r-* is the hero image swap;
+// s-* is the layout, social and news imagery update. Each prefix is ONE
+// gzipped tar split into slices.
+for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"]]) {
   const b64 = joinSlices(prefix);
   if (!b64) continue;
   writeFileSync(join(root, `patch-${prefix}tar.gz`), Buffer.from(b64, "base64"));
