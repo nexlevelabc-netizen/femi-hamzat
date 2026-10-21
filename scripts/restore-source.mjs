@@ -13,6 +13,8 @@
 // left half, applied after t-*).
 // v-*.txt slices (optional): a sixth override archive (health endpoint, error
 // logging and the db-setup script, applied after u-*).
+// w-*.txt slices (optional): a seventh override archive (news article and
+// image, applied after v-*).
 // Each prefix is ONE gzipped tar split into slices.
 // scripts/lock-patch.json (optional): extra package-lock entries merged into
 // the restored lockfile (used to add nodemailer without re-slicing lg-*).
@@ -72,9 +74,9 @@ if (existsSync(lockPatchPath)) {
 // q-* is the email notification patch; r-* is the hero image swap;
 // s-* is the layout, social and news imagery update; t-* is the EKO
 // Diaspora brand emblem update; u-* is the hero fill update; v-* is the
-// health and db-setup update. Each prefix is ONE gzipped tar split into
-// slices.
-for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"]]) {
+// health and db-setup update; w-* is the news article update. Each prefix is
+// ONE gzipped tar split into slices.
+for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"], ["w-", "news"]]) {
   const b64 = joinSlices(prefix);
   if (!b64) continue;
   writeFileSync(join(root, `patch-${prefix}tar.gz`), Buffer.from(b64, "base64"));
