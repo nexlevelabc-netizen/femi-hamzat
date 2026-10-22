@@ -19,6 +19,8 @@
 // imagery on every page, applied after w-*).
 // y-*.txt slices (optional): a ninth override archive (home hero alignment,
 // applied after x-*).
+// z-*.txt slices (optional): a tenth override archive (news images shown in
+// full, uncropped, applied after y-*).
 // Each prefix is ONE gzipped tar split into slices.
 // scripts/lock-patch.json (optional): extra package-lock entries merged into
 // the restored lockfile (used to add nodemailer without re-slicing lg-*).
@@ -79,9 +81,10 @@ if (existsSync(lockPatchPath)) {
 // s-* is the layout, social and news imagery update; t-* is the EKO
 // Diaspora brand emblem update; u-* is the hero fill update; v-* is the
 // health and db-setup update; w-* is the news article update; x-* is the
-// full bright hero imagery update; y-* is the home hero alignment update.
-// Each prefix is ONE gzipped tar split into slices.
-for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"], ["w-", "news"], ["x-", "hero imagery"], ["y-", "home hero"]]) {
+// full bright hero imagery update; y-* is the home hero alignment update;
+// z-* is the full news image update. Each prefix is ONE gzipped tar split
+// into slices.
+for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"], ["w-", "news"], ["x-", "hero imagery"], ["y-", "home hero"], ["z-", "news images"]]) {
   const b64 = joinSlices(prefix);
   if (!b64) continue;
   writeFileSync(join(root, `patch-${prefix}tar.gz`), Buffer.from(b64, "base64"));
