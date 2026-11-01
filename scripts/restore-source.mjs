@@ -25,6 +25,8 @@
 // socials and home hero, applied after z-*).
 // b-*.txt slices (optional): a twelfth override archive (header and home
 // hero spacing fix, applied after a-*).
+// d-*.txt slices (optional): a thirteenth override archive (The Lagos
+// PROMISE manifesto and the KOH News stream, applied after b-*).
 // Each prefix is ONE gzipped tar split into slices.
 // scripts/lock-patch.json (optional): extra package-lock entries merged into
 // the restored lockfile (used to add nodemailer without re-slicing lg-*).
@@ -87,10 +89,10 @@ if (existsSync(lockPatchPath)) {
 // health and db-setup update; w-* is the news article update; x-* is the
 // full bright hero imagery update; y-* is the home hero alignment update;
 // z-* is the full news image update; a-* is the rebrand update (name,
-// socials and home hero); b-* is the header and hero spacing fix. Each
-// prefix is ONE gzipped tar split
+// socials and home hero); b-* is the header and hero spacing fix; d-* is
+// the manifesto and KOH News update. Each prefix is ONE gzipped tar split
 // into slices.
-for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"], ["w-", "news"], ["x-", "hero imagery"], ["y-", "home hero"], ["z-", "news images"], ["a-", "rebrand"], ["b-", "header fix"]]) {
+for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"], ["w-", "news"], ["x-", "hero imagery"], ["y-", "home hero"], ["z-", "news images"], ["a-", "rebrand"], ["b-", "header fix"], ["d-", "manifesto and KOH News"]]) {
   const b64 = joinSlices(prefix);
   if (!b64) continue;
   writeFileSync(join(root, `patch-${prefix}tar.gz`), Buffer.from(b64, "base64"));
