@@ -35,6 +35,8 @@
 // page on mobile and tablet, applied after f-*).
 // h-*.txt slices (optional): a seventeenth override archive (team strip
 // wall compact on mobile and tablet, applied after g-*).
+// j-*.txt slices (optional): an eighteenth override archive (London KOH
+// 2027 Dialogue event and The Nation report, applied after h-*).
 // Each prefix is ONE gzipped tar split into slices.
 // scripts/lock-patch.json (optional): extra package-lock entries merged into
 // the restored lockfile (used to add nodemailer without re-slicing lg-*).
@@ -100,9 +102,10 @@ if (existsSync(lockPatchPath)) {
 // socials and home hero); b-* is the header and hero spacing fix; d-* is
 // the manifesto and KOH News update; e-* is the team and running mate
 // update; f-* is the running mate media update; g-* is the compact team
-// page update; h-* is the compact team strip wall update. Each prefix is
+// page update; h-* is the compact team strip wall update; j-* is the
+// London Dialogue event and The Nation article update. Each prefix is
 // ONE gzipped tar split into slices.
-for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"], ["w-", "news"], ["x-", "hero imagery"], ["y-", "home hero"], ["z-", "news images"], ["a-", "rebrand"], ["b-", "header fix"], ["d-", "manifesto and KOH News"], ["e-", "team and running mate"], ["f-", "running mate media"], ["g-", "compact team page"], ["h-", "compact team strip wall"]]) {
+for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"], ["w-", "news"], ["x-", "hero imagery"], ["y-", "home hero"], ["z-", "news images"], ["a-", "rebrand"], ["b-", "header fix"], ["d-", "manifesto and KOH News"], ["e-", "team and running mate"], ["f-", "running mate media"], ["g-", "compact team page"], ["h-", "compact team strip wall"], ["j-", "london event and nation article"]]) {
   const b64 = joinSlices(prefix);
   if (!b64) continue;
   writeFileSync(join(root, `patch-${prefix}tar.gz`), Buffer.from(b64, "base64"));
