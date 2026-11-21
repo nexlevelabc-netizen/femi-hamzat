@@ -37,6 +37,8 @@
 // wall compact on mobile and tablet, applied after g-*).
 // j-*.txt slices (optional): an eighteenth override archive (London KOH
 // 2027 Dialogue event and The Nation report, applied after h-*).
+// k-*.txt slices (optional): a nineteenth override archive (full Nation
+// article text from the print clipping, applied after j-*).
 // Each prefix is ONE gzipped tar split into slices.
 // scripts/lock-patch.json (optional): extra package-lock entries merged into
 // the restored lockfile (used to add nodemailer without re-slicing lg-*).
@@ -103,9 +105,10 @@ if (existsSync(lockPatchPath)) {
 // the manifesto and KOH News update; e-* is the team and running mate
 // update; f-* is the running mate media update; g-* is the compact team
 // page update; h-* is the compact team strip wall update; j-* is the
-// London Dialogue event and The Nation article update. Each prefix is
-// ONE gzipped tar split into slices.
-for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"], ["w-", "news"], ["x-", "hero imagery"], ["y-", "home hero"], ["z-", "news images"], ["a-", "rebrand"], ["b-", "header fix"], ["d-", "manifesto and KOH News"], ["e-", "team and running mate"], ["f-", "running mate media"], ["g-", "compact team page"], ["h-", "compact team strip wall"], ["j-", "london event and nation article"]]) {
+// London Dialogue event and The Nation article update; k-* is the full
+// Nation article text update. Each prefix is ONE gzipped tar split into
+// slices.
+for (const [prefix, label] of [["q-", "email"], ["r-", "hero"], ["s-", "layout"], ["t-", "brand"], ["u-", "hero fill"], ["v-", "health"], ["w-", "news"], ["x-", "hero imagery"], ["y-", "home hero"], ["z-", "news images"], ["a-", "rebrand"], ["b-", "header fix"], ["d-", "manifesto and KOH News"], ["e-", "team and running mate"], ["f-", "running mate media"], ["g-", "compact team page"], ["h-", "compact team strip wall"], ["j-", "london event and nation article"], ["k-", "nation article full text"]]) {
   const b64 = joinSlices(prefix);
   if (!b64) continue;
   writeFileSync(join(root, `patch-${prefix}tar.gz`), Buffer.from(b64, "base64"));
